@@ -5,7 +5,7 @@ from app.database.database import Base
 
 
 class User(Base):
-    _tablename_ = 'users'
+    __tablename__ = 'user'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(100), nullable=False)

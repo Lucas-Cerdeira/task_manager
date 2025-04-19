@@ -5,7 +5,7 @@ from sqlalchemy.sql.expression import text
 from app.database.database import Base
 
 class Tarefa(Base):
-    _tablename_ = "tasks"
+    __tablename__ = "task"
 
     id = Column(Integer, primary_key=True, nullable=False)
     titulo = Column(String(100), nullable=False)
