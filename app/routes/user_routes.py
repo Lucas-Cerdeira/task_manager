@@ -9,9 +9,9 @@ user_router = APIRouter()
 
 
 @user_router.get("/users/", tags=["users"])
-async def read_users():
-    return [{"username": "Rick"}, {"username": "Morty"}]
-
+async def read_users(db: Session = Depends(get_db)):
+    users = UserDbServices.get_all_users(db=db)
+    return users
 
 @user_router.post("/create_user/", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
