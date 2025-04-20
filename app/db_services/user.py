@@ -47,6 +47,8 @@ class UserDbServices():
         Args:
             db (Session): Sessão ativa do SQLAlchemy.
             user_id: id do usuários.
+        returns:
+            User: instância do usuário criado.
         """
         try:
             user = db.query(User).filter(User.id == user_id).first()
@@ -60,6 +62,13 @@ class UserDbServices():
 
     @staticmethod
     def get_all_users(db: Session):
+        """
+        Pego todos os registros de usuários cadastrados.
+        Args:
+            db (Session): Sessão ativa do do SQLAlchemy.
+        returns:
+            List[User]: Lista de usuários.
+        """
         try:
             users = db.query(User).all()
             return users
@@ -76,6 +85,8 @@ class UserDbServices():
         Args:
             db (Session): Sessão ativa do SQLAlchemy.
             email: Email do usuário.
+        Return
+            User: instância do usuário criado.
         """
         try:
             user = db.query(User).filter(User.email==email).first()
