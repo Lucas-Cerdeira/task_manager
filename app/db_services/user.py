@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 class UserDbServices():
 
-    class UserDbServices:
     @staticmethod
     def create_user(db: Session, user_data: UserCreate) -> User:
         """
