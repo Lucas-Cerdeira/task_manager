@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class UserDbServices():
 
     @staticmethod
-    def create_user(db: Session, user_data: UserCreate) -> User:
+    def create_user(db: Session, user: UserCreate) -> User:
         """
         Cria um novo usuário no banco de dados.
 
@@ -24,7 +24,7 @@ class UserDbServices():
             User: Instância do usuário criado.
         """
         try:
-            new_user = User(**user_data.model_dump())  # Mais seguro que dict()
+            new_user = User(**user.model_dump())  # Mais seguro que dict()
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
