@@ -6,10 +6,10 @@ from sqlalchemy.orm import Session
 from typing import List
 
 
-user_router = APIRouter()
+user_router = APIRouter(prefix="/users")
 
 
-@user_router.get("/users/",response_model=List[UserResponse], tags=["users"] )
+@user_router.get("/",response_model=List[UserResponse], tags=["users"] )
 async def read_users(db: Session = Depends(get_db)):
     users = UserDbServices.get_all_users(db=db)
     return users
@@ -18,7 +18,7 @@ async def read_users(db: Session = Depends(get_db)):
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return UserDbServices.create_user(user=user, db=db)
 
-@user_router.post("/users/{user_id}", response_model=UserResponse, tags=["users"])
+@user_router.get("/{user_id}", response_model=UserResponse, tags=["users"])
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user = UserDbServices.get_user_by_id(db=db, user_id=user_id)
     if not user:
