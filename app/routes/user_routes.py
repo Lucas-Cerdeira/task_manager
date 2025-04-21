@@ -9,7 +9,7 @@ from typing import List
 user_router = APIRouter(prefix="/users")
 
 
-@user_router.get("/",response_model=List[UserResponse], tags=["users"] )
+@user_router.get("/",response_model=List[UserResponse], tags=["users"])
 async def read_users(db: Session = Depends(get_db)):
     users = UserDbServices.get_all_users(db=db)
     return users
@@ -22,5 +22,5 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user = UserDbServices.get_user_by_id(db=db, user_id=user_id)
     if not user:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User not found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User not found.")
     return user
