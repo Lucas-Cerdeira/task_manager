@@ -97,7 +97,7 @@ class UserDbServices():
         except Exception as e:
             raise
 
-    def update_user(id: int):
+    def update_user(id: int, user: User):
         ...
 
     def delete_user(user_id: int):
