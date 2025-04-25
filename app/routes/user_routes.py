@@ -26,7 +26,7 @@ async def read_users(db: Session = Depends(get_db)):
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return UserDbServices.create_user(user=user, db=db)
 
-@user_router.get("/{user_id}", 
+@user_router.get("/{user_id}/", 
         response_model=UserResponse, 
         tags=["users"],
         status_code=status.HTTP_200_OK)
@@ -43,7 +43,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
         status_code=status.HTTP_200_OK
 )
 def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
-    ...
+    user = UserDbServices.update_user(db=db)
 
 @user_router.post(
     "/{user_id}/create_task/", 
