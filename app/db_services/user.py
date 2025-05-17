@@ -63,7 +63,7 @@ class UserDbServices():
     @staticmethod
     def get_all_users(db: Session):
         """
-        Pego todos os registros de usuários cadastrados.
+        Retorna todos os registros de usuários cadastrados.
         Args:
             db (Session): Sessão ativa do do SQLAlchemy.
         returns:
@@ -74,7 +74,7 @@ class UserDbServices():
             return users
         except SQLAlchemyError as erro:
             db.rollback()
-            logger.error(f"Erro ao pegar usuários: {str(erro)}")
+            logger.error(f"Erro ao buscar usuários: {str(erro)}")
         except Exception as e:
             raise
 
@@ -93,13 +93,37 @@ class UserDbServices():
             return user
         except SQLAlchemyError as erro:
             db.rollback()
-            logger.error(f"Erro ao pegar usuário pelo email.")
+            logger.error(f"Erro ao buscar usuário pelo email.")
         except Exception as e:
             raise
 
-    def update_user(id: int, user: User):
-        ...
+    def update_user(db: Session, nome: str = None, sobrenome: str = None, email: EmailStr = None):
+        """
+        Altera dados do usuário.
+        Args:
+            db (Session): Sessão ativa do SQLAlchemy.
+            email: Email do usuário.
+        Return
+            User: instância do usuário com os dados modificados.
+        """
+        try:
+            user = db.query(User).filter(User.email==email).first()
+            return user
+        except SQLAlchemyError as erro:
+            db.rollback()
+            logger.error(f"Erro ao buscar usuário pelo email.")
+        
+        if user:
+            if nome:
+                user.nome = nome
+            if sobrenome:
+                user.sobrenome = sobrenome
 
-    def delete_user(user_id: int):
-        ...
+    def delete_user(db: Session, user_id: int):
+        try:
+            user = db.query(User).filter(User.id==user_id).first()
+            return user
+        except SQLAlchemyError as erro:
+            db.rollback()
+            logger.error(f"Erro ao buscar usuário pelo email.")
     
