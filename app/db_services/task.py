@@ -38,6 +38,14 @@ class TaskDbServices():
         
 
     def get_task_by_user(db: Session, user_id: int):
+        """
+        Retorna todas as tasks de um usuário:
+        Args:
+            db (Session): Sessão ativa do SQLAlchemy. 
+            user_id: Id do usuário.
+        Returns:
+            tasks: Lista com todas as tarefas.
+        """
         try:
             user = db.query(User).filter(User.id==user_id).first()
             tasks = user.tasks
@@ -50,3 +58,17 @@ class TaskDbServices():
         
         except Exception as e:
             raise e
+        
+    def update_tasks(db: Session, task_id: int, nome: str = None, descricao: str = None):
+        try:
+            task = db.query(Task).filter(Task.id==task_id).first()
+        except SQLAlchemyError as erro:
+            db.rollback()
+            logger.error(f"Erro ao pegar tasks: {erro}")
+            raise SQLAlchemyError(f"Erro ao pegar tasks: {erro}")
+        
+        if task:
+            if nome:
+                task.nome = nome
+            if descricao:
+                task.descricao = descricao
