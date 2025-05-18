@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 from app.models.user import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserBase
 
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ class UserDbServices():
         except Exception as e:
             raise
 
-    def update_user(db: Session, nome: str = None, sobrenome: str = None, email: EmailStr = None):
+    def update_user(db: Session, userbase: UserBase):
         """
         Altera dados do usuário.
         Args:
@@ -107,17 +107,17 @@ class UserDbServices():
             User: instância do usuário com os dados modificados.
         """
         try:
-            user = db.query(User).filter(User.email==email).first()
+            user = db.query(User).filter(User.email==userbase.email).first()
             return user
         except SQLAlchemyError as erro:
             db.rollback()
             logger.error(f"Erro ao buscar usuário pelo email.")
         
         if user:
-            if nome:
-                user.nome = nome
-            if sobrenome:
-                user.sobrenome = sobrenome
+            if userbase.nome:
+                user.nome = userbase.nome
+            if userbase.sobrenome:
+                user.sobrenome = userbase.sobrenome
 
     def delete_user(db: Session, user_id: int):
         try:
