@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class TaskDbServices():
-
+    
+    @staticmethod
     def create_task(db: Session, task: TaskCreate, user_id: int):
         """
         Cria uma nova task.
@@ -36,7 +37,7 @@ class TaskDbServices():
         except Exception as e:
             raise e
         
-
+    @staticmethod
     def get_task_by_user(db: Session, user_id: int):
         """
         Retorna todas as tasks de um usuário:
@@ -58,7 +59,8 @@ class TaskDbServices():
         
         except Exception as e:
             raise e
-        
+    
+    @staticmethod
     def update_tasks(db: Session, task_id: int, nome: str = None, descricao: str = None):
         try:
             task = db.query(Task).filter(Task.id==task_id).first()

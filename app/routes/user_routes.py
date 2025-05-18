@@ -56,7 +56,7 @@ def get_user_by_email(email: str, db: Session = Depends(get_db)):
 )
 def update_user(user_id: int, user: UserBase, db: Session = Depends(get_db)):
     user = UserDbServices.update_user(db=db, user=user)
-
+    return user
 
 @user_router.post(
     "/{user_id}/create_task/", 
