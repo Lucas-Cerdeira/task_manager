@@ -72,3 +72,4 @@ class TaskDbServices():
                 task.nome = nome
             if descricao:
                 task.descricao = descricao
+        return task
