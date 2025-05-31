@@ -1,6 +1,7 @@
 from pydantic import EmailStr
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 import logging
 from app.models.user import User
 from app.schemas.user import UserCreate, UserBase
@@ -29,11 +30,18 @@ class UserDbServices():
             db.commit()
             db.refresh(new_user)
             return new_user
+        
+        #IntegrityError
+        except IntegrityError as e:
+            db.rollback()
+            logger.error(f"Erro ao criar usuário: {str(e)}")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Erro ao criar usuário no banco de dados: Dados duplicados.")
 
         except SQLAlchemyError as e:
             db.rollback()
             logger.error(f"Erro ao criar usuário: {str(e)}")
-            raise Exception("Erro ao criar usuário no banco de dados.")
+            raise HTTPException("Erro ao criar usuário no banco de dados.")
+            
 
         except Exception as e:
             logger.exception("Erro inesperado ao criar usuário.")
@@ -56,7 +64,7 @@ class UserDbServices():
         except SQLAlchemyError as erro:
             db.rollback()
             logger.error(f"Erro ao resgatar usuário: {str(erro)}")
-            raise Exception("Erro ao pegar usuario.")
+            raise HTTPException("Erro ao pegar usuario.")
         except Exception as e:
             raise
 
@@ -76,7 +84,7 @@ class UserDbServices():
             db.rollback()
             logger.error(f"Erro ao buscar usuários: {str(erro)}")
         except Exception as e:
-            raise
+            raise HTTPException(f"Erro ao buscar usuários: {str(erro)}")
 
     @staticmethod
     def get_user_by_email(db: Session, email: EmailStr):
@@ -97,7 +105,7 @@ class UserDbServices():
         except Exception as e:
             raise
 
-    def update_user(db: Session, userbase: UserBase):
+    def update_user(db: Session, userbase: UserBase, user_id: int):
         """
         Altera dados do usuário.
         Args:
@@ -107,8 +115,7 @@ class UserDbServices():
             User: instância do usuário com os dados modificados.
         """
         try:
-            user = db.query(User).filter(User.email==userbase.email).first()
-            return user
+            user = db.query(User).filter(User.id==user_id).first()
         except SQLAlchemyError as erro:
             db.rollback()
             logger.error(f"Erro ao buscar usuário pelo email.")
@@ -119,11 +126,16 @@ class UserDbServices():
             if userbase.sobrenome:
                 user.sobrenome = userbase.sobrenome
 
+        db.commit()
+        db.flush()
+
+        return user
+
     def delete_user(db: Session, user_id: int):
         try:
             user = db.query(User).filter(User.id==user_id).first()
             return user
         except SQLAlchemyError as erro:
             db.rollback()
-            logger.error(f"Erro ao buscar usuário pelo email.")
-    
+            logger.error(f"Usuário não encontrado.")
+            raise HTTPException(f"Erro ao buscar usuário pelo email.", status_code=status.HTTP_404_NOT_FOUND)

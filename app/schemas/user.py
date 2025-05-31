@@ -13,3 +13,8 @@ class UserResponse(BaseModel):
     nome: str
     sobrenome: str
     email: EmailStr
+
+class UserUpdate(BaseModel):
+    nome: str = None
+    sobrenome: str = None
+    email: EmailStr = None

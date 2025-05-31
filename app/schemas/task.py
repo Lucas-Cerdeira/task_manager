@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import datetime
 
 
 class TaskBase(BaseModel):
@@ -9,8 +9,11 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    user_id: int
+    ...
+
+class TaskFull(TaskBase):
+    ...
 
 
 class TaskResponse(TaskBase):
-    data_criacao: date
+    data_criacao: datetime
