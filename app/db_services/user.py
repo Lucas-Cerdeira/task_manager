@@ -104,8 +104,9 @@ class UserDbServices():
             logger.error(f"Erro ao buscar usuário pelo email.")
         except Exception as e:
             raise
-
-    def update_user(db: Session, userbase: UserBase, user_id: int):
+    
+    @staticmethod
+    def update_user(db: Session, userbase: UserBase):
         """
         Altera dados do usuário.
         Args:

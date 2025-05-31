@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class TaskDbServices():
-
+    
+    @staticmethod
     @staticmethod
     def create_task(db: Session, task: TaskCreate, user_id: int):
         """
