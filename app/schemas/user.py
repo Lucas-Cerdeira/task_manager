@@ -1,13 +1,13 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    nome: str
-    sobrenome: str
+    nome: str = Field(..., min_length=2, max_length=100)
+    sobrenome: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
 
 class UserCreate(UserBase):
-    senha_hash: str
+    senha_hash: str = Field(..., min_length=6, max_length=128)
 
 class UserResponse(BaseModel):
     nome: str
@@ -15,6 +15,6 @@ class UserResponse(BaseModel):
     email: EmailStr
 
 class UserUpdate(BaseModel):
-    nome: str = None
-    sobrenome: str = None
+    nome: str = Field(None, min_length=2, max_length=100)
+    sobrenome: str = Field(None, min_length=2, max_length=100)
     email: EmailStr = None
