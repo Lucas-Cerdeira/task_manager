@@ -106,7 +106,7 @@ class UserDbServices():
             raise
     
     @staticmethod
-    def update_user(db: Session, userbase: UserBase):
+    def update_user(db: Session, userbase: UserBase, user_id: int):
         """
         Altera dados do usuário.
         Args:
@@ -132,11 +132,18 @@ class UserDbServices():
 
         return user
 
+    @staticmethod
     def delete_user(db: Session, user_id: int):
         try:
-            user = db.query(User).filter(User.id==user_id).first()
-            return user
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                db.delete(user)
+                db.commit()
+                return user
+            else:
+                logger.error("Usuário não encontrado.")
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado.")
         except SQLAlchemyError as erro:
             db.rollback()
-            logger.error(f"Usuário não encontrado.")
-            raise HTTPException(f"Erro ao buscar usuário pelo email.", status_code=status.HTTP_404_NOT_FOUND)
+            logger.error(f"Erro ao deletar usuário: {str(erro)}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Erro ao deletar usuário.")

@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 class TaskDbServices():
     
     @staticmethod
-    @staticmethod
     def create_task(db: Session, task: TaskCreate, user_id: int):
         """
         Cria uma nova task.
@@ -46,7 +45,7 @@ class TaskDbServices():
             raise e
         
     @staticmethod
-    def get_task_by_user(db: Session, user_id: int):
+    def get_tasks_by_user_id(db: Session, user_id: int):
         """
         Retorna todas as tasks de um usuário:
         Args:
@@ -57,6 +56,8 @@ class TaskDbServices():
         """
         try:
             user = db.query(User).filter(User.id==user_id).first()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id {user_id} not found.")
             tasks = user.tasks
             return tasks
         
@@ -82,4 +83,29 @@ class TaskDbServices():
                 task.nome = nome
             if descricao:
                 task.descricao = descricao
+        return task
+
+    @staticmethod
+    def delete_task(db: Session, user_id: int, task_id: int):
+        """
+        Deleta uma task de um usuário específico.
+        Args:
+            db (Session): Sessão ativa do SQLAlchemy.
+            user_id: Id do usuário.
+            task_id: Id da task.
+        Returns:
+            task: A task deletada.
+        """
+        try:
+            task = db.query(Task).filter(Task.id==task_id, Task.user_id==user_id).first()
+            if not task:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
+            db.delete(task)
+            db.commit()
+        except SQLAlchemyError as e:
+            db.rollback()
+            logger.error(f"Erro ao deletar task: {str(e)}")
+            raise HTTPException(status_code=status.HTTP_200_OK, detail="Erro ao deletar task.")
+        except Exception as e:
+            raise e
         return task
