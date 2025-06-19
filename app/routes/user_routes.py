@@ -87,8 +87,7 @@ def get_tasks_by_user_id(user_id: int, db: Session = Depends(get_db)):
     tasks = TaskDbServices.get_tasks_by_user_id(db=db, user_id=user_id)
     if not tasks:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No tasks found for user with ID {user_id}.")
-    # Garante que todas as tasks retornadas são serializáveis pelo TaskResponse
-    return [TaskResponse.model_validate(task) for task in tasks]
+    return tasks
 
 @user_router.delete(
     "/{user_id}/tasks/{task_id}/",
@@ -101,5 +100,4 @@ def delete_task_for_user(user_id: int, task_id: int, db: Session = Depends(get_d
     task = TaskDbServices.delete_task(db=db, user_id=user_id, task_id=task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Task not found.")
-    # Garante que o retorno é serializável pelo TaskResponse
-    return TaskResponse.model_validate(task)
+    return task
