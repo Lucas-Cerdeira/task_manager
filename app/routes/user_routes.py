@@ -69,9 +69,35 @@ def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
 @user_router.post(
     "/{user_id}/create_task/", 
     response_model=TaskResponse,
-    tags=["users"],
+    tags=["tasks"],
     status_code=status.HTTP_201_CREATED,
     operation_id="CreateTaskForUser")
 def create_task_for_user(user_id: int, task: TaskCreate, db: Session = Depends(get_db)):
     task = TaskDbServices.create_task(db=db, task=task, user_id=user_id)
+    return task
+
+@user_router.get(
+    "/{user_id}/tasks/",
+    response_model=List[TaskResponse],
+    tags=["tasks"],
+    status_code=status.HTTP_200_OK,
+    operation_id="GetTasksByUserId"
+)
+def get_tasks_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    tasks = TaskDbServices.get_tasks_by_user_id(db=db, user_id=user_id)
+    if not tasks:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No tasks found for user with ID {user_id}.")
+    return tasks
+
+@user_router.delete(
+    "/{user_id}/tasks/{task_id}/",
+    response_model=TaskResponse,
+    tags=["tasks"],
+    status_code=status.HTTP_200_OK,
+    operation_id="DeleteTaskForUser"
+)
+def delete_task_for_user(user_id: int, task_id: int, db: Session = Depends(get_db)):
+    task = TaskDbServices.delete_task(db=db, user_id=user_id, task_id=task_id)
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Task not found.")
     return task
