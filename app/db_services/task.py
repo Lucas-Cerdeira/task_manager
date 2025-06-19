@@ -28,13 +28,13 @@ class TaskDbServices():
             new_task: Task = Task(**task.model_dump(), user_id=user_id)
             db.add(new_task)
             db.commit()
-            db.flush()
+            db.refresh(new_task)
             return new_task
         
         except IntegrityError as e:
             db.rollback()
             logger.error(f"Erro ao criar usuário: {str(e)}")
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Erro ao criar usuário no banco de dados: Dados duplicados.")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Erro ao criar task no banco de dados: Dados duplicados.")
 
         except SQLAlchemyError as e:
             db.rollback()
@@ -102,10 +102,10 @@ class TaskDbServices():
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
             db.delete(task)
             db.commit()
+            return task  # Retorna a task deletada para garantir compatibilidade com o response_model TaskResponse
         except SQLAlchemyError as e:
             db.rollback()
             logger.error(f"Erro ao deletar task: {str(e)}")
-            raise HTTPException(status_code=status.HTTP_200_OK, detail="Erro ao deletar task.")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Erro ao deletar task.")
         except Exception as e:
             raise e
-        return task
