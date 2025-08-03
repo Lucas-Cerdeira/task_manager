@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 import logging
 from app.models.user import User
-from app.schemas.user import UserCreate, UserBase
+from app.schemas.user import UserCreate, UserBase, UserFull
 
 
 logger = logging.getLogger(__name__)
@@ -25,12 +25,12 @@ class UserDbServices():
             User: Instância do usuário criado.
         """
         try:
-            new_user = User(**user.model_dump())  # Mais seguro que dict()
+            new_user: UserFull = User(**user.model_dump())  # Mais seguro que dict()
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
             return new_user
-        
+
         #IntegrityError
         except IntegrityError as e:
             db.rollback()
@@ -41,8 +41,6 @@ class UserDbServices():
             db.rollback()
             logger.error(f"Erro ao criar usuário: {str(e)}")
             raise HTTPException("Erro ao criar usuário no banco de dados.")
-            
-
         except Exception as e:
             logger.exception("Erro inesperado ao criar usuário.")
             raise
@@ -116,7 +114,7 @@ class UserDbServices():
             User: instância do usuário com os dados modificados.
         """
         try:
-            user = db.query(User).filter(User.id==user_id).first()
+            user  = db.query(User).filter(User.id==user_id).first()
         except SQLAlchemyError as erro:
             db.rollback()
             logger.error(f"Erro ao buscar usuário pelo email.")
