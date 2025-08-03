@@ -5,13 +5,19 @@ from sqlalchemy.orm import sessionmaker
 from app.database.database import Base, get_db
 from main import app
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 # Configuração do banco de dados de teste
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Cria as tabelas no banco de teste
+# Recria todas as tabelas no banco de teste
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 # Fixture para a sessão do banco de dados
