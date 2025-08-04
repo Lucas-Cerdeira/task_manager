@@ -25,7 +25,7 @@ class UserDbServices():
             User: Instância do usuário criado.
         """
         try:
-            new_user: UserFull = User(**user.model_dump())  # Mais seguro que dict()
+            new_user: UserFull = User(**user.model_dump())
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
