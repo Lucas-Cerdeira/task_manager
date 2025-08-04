@@ -14,6 +14,7 @@ class User(Base):
     senha_hash = Column(String(20), nullable=False)
 
     tasks = relationship("Task", back_populates="owner")
+    eventos = relationship("Evento", back_populates="owner")
 
     def _repr_(self):
         return f"<User(id={self.id}, nome='{self.nome}', email='{self.email}')>"
