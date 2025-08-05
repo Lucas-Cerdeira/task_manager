@@ -7,6 +7,29 @@ from app.db_services.task import TaskDbServices
 from app.db_services.evento import EventoDbServices
 from datetime import datetime
 
+def create_user_and_get_token(client, user_data, db_session):
+    """Função auxiliar para criar usuário e obter token de autenticação"""
+    # Criar usuário
+    from app.security.auth import get_password_hash
+    # Salvar a senha original
+    plain_password = user_data["senha_hash"]
+    # Gerar hash da senha
+    user_data["senha_hash"] = get_password_hash(user_data["senha_hash"])
+    
+    response = UserDbServices.create_user(user=UserCreate(**user_data), db=db_session)
+    user_id = response.id
+
+    # Fazer login para obter o token
+    login_data = {
+        "email": user_data["email"],
+        "password": plain_password
+    }
+    login_response = client.post("/auth/login", json=login_data)
+    assert login_response.status_code == 200
+    token = login_response.json()["access_token"]
+    
+    return user_id, token
+
 
 def test_create_user(client):
     user_data = {
@@ -128,8 +151,8 @@ def test_delete_task_for_user(client, db_session):
         "senha_hash": "senha123"
     }
 
-    response = UserDbServices.create_user(user=UserCreate(**user_data), db=db_session)
-    user_id = response.id
+    # Criar usuário e obter token
+    user_id, token = create_user_and_get_token(client, user_data, db_session)
 
     task_data = {
         "nome": "Tarefa Deletar",
@@ -142,7 +165,9 @@ def test_delete_task_for_user(client, db_session):
     response = TaskDbServices.create_task(user_id=user_id, task=TaskCreate(**task_data), db=db_session)
     task_id = response.id
 
-    response = client.delete(f"/users/{user_id}/tasks/{task_id}/")
+    # Adicionar o token de autenticação no header
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.delete(f"/users/{user_id}/tasks/{task_id}/", headers=headers)
     assert response.status_code in [200, 204]
 
 
@@ -257,3 +282,33 @@ def test_delete_evento(client, db_session):
     assert response.status_code == 200
     data = response.json()
     assert not any(evento["id"] == evento_id for evento in data)
+
+
+def test_delete_task(client, db_session):
+    # Criar um usuário e obter token
+    user_data = {
+        "nome": "Test",
+        "sobrenome": "User",
+        "email": "test@example.com",
+        "senha_hash": "testpassword"
+    }
+    user_id, token = create_user_and_get_token(client, user_data, db_session)
+
+    # Criar uma task para o teste
+    task_data = {
+        "nome": "Test Task",
+        "descricao": "Test Description",
+        "completed": False,
+        "user_id": user_id
+    }
+    task = TaskDbServices.create_task(user_id=user_id, task=TaskCreate(**task_data), db=db_session)
+    task_id = task.id
+
+    # Deletar a task com autenticação
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.delete(f"/users/{user_id}/tasks/{task_id}/", headers=headers)
+    assert response.status_code in [200, 204]
+
+    # Verificar se a task foi realmente deletada
+    tasks = TaskDbServices.get_tasks_by_user_id(user_id=user_id, db=db_session)
+    assert not any(task.id == task_id for task in tasks)

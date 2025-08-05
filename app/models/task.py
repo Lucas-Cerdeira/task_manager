@@ -16,6 +16,7 @@ class Task(Base):
     data_entrega = Column(TIMESTAMP(timezone=True), nullable=True, default=text("NULL"))
     diaria = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    prioridade = Column(String(5), default='MEDIA')  # BAIXA, MEDIA, ALTA
 
     owner = relationship("User", back_populates="tasks")
 

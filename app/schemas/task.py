@@ -22,6 +22,15 @@ class TaskFull(TaskBase):
 
 
 class TaskResponse(TaskBase):
-    ...
+    id: int
+    user_id: int
     class Config:
         orm_mode = True
+
+class TaskUpdate(BaseModel):
+    nome: str | None = Field(None, min_length=2, max_length=100)
+    descricao: str | None = Field(None, min_length=2, max_length=255)
+    completed: bool | None = None
+    data_entrega: datetime | None = None
+    diaria: bool | None = None
+    prioridade: str | None = Field(None, pattern='^(BAIXA|MEDIA|ALTA)$')

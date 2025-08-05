@@ -69,21 +69,48 @@ class TaskDbServices():
         except Exception as e:
             raise e
     
-    @staticmethod    
-    def update_tasks(db: Session, task_id: int, nome: str = None, descricao: str = None):
+    @staticmethod
+    def update_task(db: Session, task_id: int, user_id: int, task_data: dict):
+        """
+        Atualiza uma tarefa existente.
+        Args:
+            db (Session): Sessão ativa do SQLAlchemy.
+            task_id: Id da tarefa a ser atualizada.
+            user_id: Id do usuário dono da tarefa.
+            task_data: Dicionário com os campos a serem atualizados.
+        Returns:
+            Task: A tarefa atualizada.
+        """
         try:
-            task = db.query(Task).filter(Task.id==task_id).first()
-        except SQLAlchemyError as erro:
+            task = db.query(Task).filter(
+                Task.id == task_id,
+                Task.user_id == user_id
+            ).first()
+
+            if not task:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Task not found or doesn't belong to the user"
+                )
+            
+            # Atualiza apenas os campos fornecidos
+            for field, value in task_data.items():
+                if value is not None:  # Só atualiza se o valor não for None
+                    setattr(task, field, value)
+            
+            db.commit()
+            db.refresh(task)
+            return task
+
+        except SQLAlchemyError as e:
             db.rollback()
-            logger.error(f"Erro ao pegar tasks: {erro}")
-            raise SQLAlchemyError(f"Erro ao pegar tasks: {erro}")
-        
-        if task:
-            if nome:
-                task.nome = nome
-            if descricao:
-                task.descricao = descricao
-        return task
+            logger.error(f"Erro ao atualizar task: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erro ao atualizar task."
+            )
+        except Exception as e:
+            raise e
 
     @staticmethod
     def delete_task(db: Session, user_id: int, task_id: int):

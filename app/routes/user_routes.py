@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.user import UserCreate, UserResponse, UserBase, UserUpdate
-from app.schemas.task import TaskCreate, TaskResponse
+from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.db_services.user import UserDbServices
 from app.db_services.task import TaskDbServices
 from app.database.database import get_db
+from app.security.auth import get_current_user
+from app.models.user import User
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -96,8 +98,60 @@ def get_tasks_by_user_id(user_id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     operation_id="DeleteTaskForUser"
 )
-def delete_task_for_user(user_id: int, task_id: int, db: Session = Depends(get_db)):
+def delete_task_for_user(
+    user_id: int, 
+    task_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Verifica se o usuário tem permissão para deletar a tarefa
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this task"
+        )
+    
     task = TaskDbServices.delete_task(db=db, user_id=user_id, task_id=task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Task not found.")
     return task
+
+@user_router.put(
+    "/{user_id}/tasks/{task_id}/",
+    response_model=TaskResponse,
+    tags=["tasks"],
+    status_code=status.HTTP_200_OK,
+    operation_id="UpdateTaskForUser"
+)
+def update_task(
+    user_id: int,
+    task_id: int,
+    task_update: TaskUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Atualiza uma tarefa existente.
+    - Requer autenticação
+    - Apenas o dono da tarefa pode atualizá-la
+    - Campos não fornecidos não serão alterados
+    """
+    # Verifica se o usuário tem permissão para atualizar a tarefa
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to update this task"
+        )
+
+    # Remove campos None do modelo de atualização
+    update_data = task_update.model_dump(exclude_unset=True)
+    
+    # Atualiza a tarefa
+    updated_task = TaskDbServices.update_task(
+        db=db,
+        task_id=task_id,
+        user_id=user_id,
+        task_data=update_data
+    )
+    
+    return updated_task
