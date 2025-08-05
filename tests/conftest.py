@@ -41,6 +41,10 @@ def client(db_session):
     with TestClient(app) as c:
         yield c
 
+@pytest.fixture
+def base_url():
+    return "http://test"
+
 # Limpa as tabelas após cada teste
 @pytest.fixture(autouse=True)
 def clean_tables(db_session):
