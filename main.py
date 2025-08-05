@@ -3,6 +3,7 @@ from fastapi_mcp import FastApiMCP
 from app.routes.user_routes import user_router
 from app.routes.evento_routes import router as evento_router
 from app.routes.auth_routes import router as auth_router
+from app.routes.tool_registry import router as tool_registry_router
 from app.database.database import Base, engine
 from app.models import user, task, evento
 
@@ -14,6 +15,7 @@ Base.metadata.create_all(bind=engine)
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(evento_router)
+app.include_router(tool_registry_router)
 
 
 mcp = FastApiMCP(
