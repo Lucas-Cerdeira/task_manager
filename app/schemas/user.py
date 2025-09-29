@@ -14,7 +14,7 @@ class UserResponse(BaseModel):
     sobrenome: str
     email: EmailStr
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserUpdate(BaseModel):
     nome: str = Field(None, min_length=2, max_length=100)
@@ -25,4 +25,4 @@ class UserFull(UserResponse):
     id: int
     tasks: list = []  # Assuming tasks is a list of TaskResponse objects
     class Config:
-        orm_mode = True
+        from_attributes = True

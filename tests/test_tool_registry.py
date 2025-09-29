@@ -40,7 +40,7 @@ MOCK_TOOLS = [
 @pytest.mark.asyncio
 async def test_tool_registry_status(client, base_url):
     """Testa se o endpoint retorna status 200 OK"""
-    async with AsyncClient(app=client.app, base_url=base_url) as ac:
+    async with AsyncClient(base_url=base_url) as ac:
         with patch('app.routes.tool_registry.get_tools', return_value=MOCK_TOOLS):
             response = await ac.get("/tool-registry/")
             assert response.status_code == status.HTTP_200_OK, "O endpoint deve retornar status 200"
@@ -48,7 +48,7 @@ async def test_tool_registry_status(client, base_url):
 @pytest.mark.asyncio
 async def test_tool_registry_response_structure(client, base_url):
     """Testa se a resposta tem a estrutura correta"""
-    async with AsyncClient(app=client.app, base_url=base_url) as ac:
+    async with AsyncClient(base_url=base_url) as ac:
         with patch('app.routes.tool_registry.get_tools', return_value=MOCK_TOOLS):
             response = await ac.get("/tool-registry/")
             data = response.json()
@@ -59,7 +59,7 @@ async def test_tool_registry_response_structure(client, base_url):
 @pytest.mark.asyncio
 async def test_tool_registry_tool_structure(client, base_url):
     """Testa se cada ferramenta tem todos os campos obrigatórios"""
-    async with AsyncClient(app=client.app, base_url=base_url) as ac:
+    async with AsyncClient(base_url=base_url) as ac:
         with patch('app.routes.tool_registry.get_tools', return_value=MOCK_TOOLS):
             response = await ac.get("/tool-registry/")
             tools = response.json()
@@ -76,7 +76,7 @@ async def test_tool_registry_tool_structure(client, base_url):
 @pytest.mark.asyncio
 async def test_tool_registry_method_validation(client, base_url):
     """Testa se os métodos HTTP são válidos"""
-    async with AsyncClient(app=client.app, base_url=base_url) as ac:
+    async with AsyncClient(base_url=base_url) as ac:
         with patch('app.routes.tool_registry.get_tools', return_value=MOCK_TOOLS):
             response = await ac.get("/tool-registry/")
             tools = response.json()
@@ -89,7 +89,7 @@ async def test_tool_registry_method_validation(client, base_url):
 @pytest.mark.asyncio
 async def test_tool_registry_url_format(client, base_url):
     """Testa se as URLs das ferramentas estão no formato correto"""
-    async with AsyncClient(app=client.app, base_url=base_url) as ac:
+    async with AsyncClient(base_url=base_url) as ac:
         with patch('app.routes.tool_registry.get_tools', return_value=MOCK_TOOLS):
             response = await ac.get("/tool-registry/")
             tools = response.json()
@@ -103,7 +103,7 @@ async def test_tool_registry_url_format(client, base_url):
 @pytest.mark.asyncio
 async def test_tool_registry_description_quality(client, base_url):
     """Testa a qualidade das descrições das ferramentas"""
-    async with AsyncClient(app=client.app, base_url=base_url) as ac:
+    async with AsyncClient(base_url=base_url) as ac:
         with patch('app.routes.tool_registry.get_tools', return_value=MOCK_TOOLS):
             response = await ac.get("/tool-registry/")
             tools = response.json()

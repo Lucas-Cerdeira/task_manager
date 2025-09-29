@@ -18,14 +18,14 @@ class TaskFull(TaskBase):
     user_id: int
     data_criacao: datetime
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TaskResponse(TaskBase):
     id: int
     user_id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TaskUpdate(BaseModel):
     nome: str | None = Field(None, min_length=2, max_length=100)

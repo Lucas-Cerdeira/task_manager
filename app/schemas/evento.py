@@ -11,12 +11,12 @@ class EventoBase(BaseModel):
 class EventoCreate(EventoBase):
     pass
 
-class EventoFull(EventoBase):
+class EventoRead(EventoBase):
     id: int
     user_id: int
-    
+    data_criacao: datetime
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class EventoUpdate(BaseModel):
     titulo: str | None = Field(None, min_length=2, max_length=100)
